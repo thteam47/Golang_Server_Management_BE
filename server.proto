@@ -1,0 +1,268 @@
+syntax  = "proto3";
+package server.v1;
+
+option go_package = "/serverpb";
+import "google/api/annotations.proto";
+message User{
+	string fullName =1;
+	string email =2;
+	string username =3;
+	string password =4;
+	string role =5;
+	string idUser =6;
+	repeated string action =7;
+}
+message GetListUser {
+
+}
+message ListUser {
+	repeated User data =1;
+}
+message InfoUser{
+
+}
+message DeleteUser {
+	string idUser =1;
+}
+message ChangeUser {
+	string idUser =1;
+	User data =2;
+}
+message LoginServer{
+	string username =1 ;
+	string password =2;
+}
+message UserResponse {
+	string idUser =1;
+	User data =2;
+}
+message UpdateRequest{
+	string idServer =1;
+	Server infoServer =2;
+}
+message ResultLogin{
+	bool ok = 1;
+	string accessToken = 2;
+	string role =3;
+}
+message ListServer{
+	repeated Server data = 1;
+	int64 totalServer = 2;
+}
+message searchRequest{
+	string keySearch =1;
+	int64 numberPage =2 ;
+	int64 limitPage =3 ;
+	string fieldSearch =4;
+}
+message Server{
+	string idServer =1;
+	string username =2;
+	string serverName = 3;
+	string ip = 4;
+	string password = 5;
+	string status =6;
+	string description =7;
+}
+message ResponseServer {
+	string idServer =1;
+	Server data =2;
+}
+message DetailsServer {
+	string idServer =1;
+	string serverName =2;
+	string timeIn=3;
+	string timeOut =4;
+}
+
+message DetailsServerResponse{
+	string statusServer = 1;
+	repeated StatusDetail status =2;
+}
+message StatusDetail{
+	string statusDt = 1;
+	string time =2;
+}
+
+message PaginationRequest {
+	int64 numberPage = 1;
+	int64 limitPage =2 ;
+}
+
+message DelServer{
+	string idServer =1;
+}
+message DeleteServerResponse{
+	bool ok =1;
+}
+
+message MessResponse{
+	string mess =1;
+}
+message ChangePasswordRequest {
+	string idServer =1;
+	string password =2;
+}
+message ChangePasswordUser {
+	string idUser =1;
+	string password =2;
+}
+message CheckStatusRequest{
+	bool ok =1;
+}
+message ExportRequest {
+	bool page =1;
+	int64 numberPage =2 ;
+	int64 limitPage =3 ;
+}
+message ExportResponse{
+	string url =1;
+}
+
+message dataStatus {
+	string idServer =1;
+	string serverName =2 ;
+	string status =3;
+}
+message CheckStatusResponse {
+	repeated dataStatus listStatus =1;
+}
+message Logout{
+	
+}
+message Disconnect{
+	string idServer =1;
+}
+message CheckServerNameRequest {
+	string serverName =1;
+}
+message CheckServerNameResponse {
+	bool check =1;
+}
+message ChangeActionUser {
+	string idUser = 1;
+	string role =2;
+	repeated string action =3;
+}
+
+service ServerService {	
+	rpc login (LoginServer) returns (ResultLogin) {
+		option (google.api.http) = {
+			post: "/admin"
+		   	body: "*"
+		};
+	}
+	rpc getUser (InfoUser) returns (User) {
+		option (google.api.http) = {
+			get: "/getUser"
+		};
+	}
+	rpc getListUser (GetListUser) returns (ListUser) {
+		option (google.api.http) = {
+			get: "/getlistUser"
+		};
+	}
+	rpc addUser (User) returns (User) {
+		option (google.api.http) = {
+			post: "/addUser"
+		   	body: "*"
+		};
+	}
+
+	rpc connect (LoginServer) returns (MessResponse) {
+		option (google.api.http) = {
+			post: "/connect"
+		   	body: "*"
+		};
+	}
+	rpc index (PaginationRequest) returns (ListServer) {
+		option (google.api.http) = {
+			get: "/dashboard/{limitPage}/{numberPage}"
+		};
+	}
+	rpc search (searchRequest) returns (ListServer) {
+		option (google.api.http) = {
+			get: "/search/{fieldSearch}/{keySearch}/{limitPage}/{numberPage}"
+		};
+	}
+	rpc checkServerName (CheckServerNameRequest) returns (CheckServerNameResponse) {
+		option (google.api.http) = {
+			get: "/queryname"
+		};
+	}
+	rpc addServer (Server) returns (ResponseServer) {
+		option (google.api.http) = {
+			post: "/addServer"
+		   	body: "*"
+		};
+	}
+	rpc updateServer (UpdateRequest) returns (ResponseServer) {
+		option (google.api.http) = {
+			put: "/detailsServer/{idServer}"
+			body: "*"
+		};
+	}
+	
+	rpc detailsServer (DetailsServer) returns (DetailsServerResponse) {
+		option (google.api.http) = {
+			get: "/detailsServer/{idServer}"
+		};
+	}
+	
+	rpc deleteServer (DelServer) returns (DeleteServerResponse){
+		option (google.api.http) = {
+			delete: "/delete/{idServer}"
+		};
+	}
+	rpc changePassword(ChangePasswordRequest) returns (MessResponse) {
+		option (google.api.http) = {
+			put: "/changePassword/{idServer}"
+			body: "*"
+		};
+	}
+	rpc changeActionUser(ChangeActionUser) returns (MessResponse) {
+		option (google.api.http) = {
+			put: "/changeAction/{idUser}"
+			body: "*"
+		};
+	}
+	
+	rpc checkStatus(CheckStatusRequest) returns (CheckStatusResponse) {
+		option (google.api.http) = {
+			get:"/checkStatus"
+		};
+	}
+	rpc export (ExportRequest) returns (ExportResponse) {
+		option (google.api.http) = {
+			get:"/export"
+		};
+	}
+	rpc logout (Logout) returns (MessResponse) {
+		option (google.api.http) = {
+			get:"/logout"
+		};
+	}
+	rpc disconnect (Disconnect) returns (MessResponse) {
+		option (google.api.http) = {
+			get:"/disconnect/{idServer}"
+		};
+	}
+	rpc updateUser (ChangeUser) returns (UserResponse) {
+		option (google.api.http) = {
+			put: "/updateUser/{idUser}"
+			body: "*"
+		};
+	}
+	rpc changePassUser(ChangePasswordUser) returns (MessResponse) {
+		option (google.api.http) = {
+			put: "/changePasswordUser/{idUser}"
+			body: "*"
+		};
+	}
+
+	rpc deleteUser (DeleteUser) returns (MessResponse){
+		option (google.api.http) = {
+			delete: "/deleteUser/{idUser}"
+		};
+	}
+}

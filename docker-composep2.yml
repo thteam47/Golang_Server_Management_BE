@@ -1,0 +1,123 @@
+version: "3.0"
+services:
+  golangserver:
+    image: thteam47/golang-server:latest
+    networks:
+      - net1
+    ports:
+      - 9090:9090
+    depends_on:
+      - mongodb
+      - elasticsearch
+      - redis
+    deploy:
+      replicas: 3
+  golangclient:
+    image: thteam47/golang-client:latest
+    networks:
+      - net1
+    ports:
+      - 8081:8081
+    deploy:
+      replicas: 3
+  elasticsearch:
+    image: elasticsearch:7.14.0
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    networks:
+      - net1
+    ports:
+      - 9200:9200
+  kibana:
+    container_name: kibana-container
+    image: docker.elastic.co/kibana/kibana:7.13.4
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic-container:9200
+    networks:
+      - ek-net
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
+  kibana:
+    image: kibana:7.10.1
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic-container:9200
+    networks:
+      - net1
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
+  mongodb:
+    image: mongo:latest
+    networks:
+      - net1
+    ports:
+      - 27017:27017
+  redis:
+    image: redis:6.0.3-alpine
+    networks:
+      - net1
+    ports:
+      - "6379:6379"
+networks:
+  net1:
+    driver: overlay
+
+version: "3.0"
+services:
+  golangserver:
+    image: thteam47/golang-server:latest
+    container_name: golangserver
+    networks:
+      - net1
+    ports:
+      - "9090:9090"
+    depends_on:
+      - mongodb
+      - elasticsearch
+      - redis
+    deploy:
+      replicas: 3
+  golangclient:
+    image: thteam47/golang-client:latest
+    container_name: golangclient
+    networks:
+      - net1
+    ports:
+      - "8081:8081"
+    deploy:
+      replicas: 3
+  elasticsearch:
+    image: elasticsearch:7.14.0
+    networks:
+      - net1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+      - ES_JAVA_OPTS="-Xms2g -Xmx2g" ./bin/elasticsearch
+  mongodb:
+    image: mongo:4.0.27-rc0
+    networks:
+      - net1
+    ports:
+      - 27017:27017
+    deploy:
+      replicas: 3
+  redis:
+    image: redis:6.0.3-alpine
+    networks:
+      - net1
+    ports:
+      - "6379:6379"
+    deploy:
+      replicas: 3
+  
+networks:
+  net1:
+    driver: overlay
